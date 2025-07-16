@@ -2,40 +2,61 @@ provider "aws" {
   region = "us-east-1"
 }
 
+resource "random_id" "suffix" {
+  byte_length = 4
+}
+
+resource "aws_s3_bucket" "pii_bucket" {
+  bucket        = "prisma-pii-demo-${random_id.suffix.hex}"
+  force_destroy = true
+}
+
+resource "aws_s3_bucket_object" "pii_file" {
+  bucket = aws_s3_bucket.pii_bucket.id
+  key    = "ssn_data.csv"
+  content = <<CSV
+name,ssn
+Alice,123-45-6789
+Bob,987-65-4321
+CSV
+}
+
 resource "aws_iam_role" "vuln_role" {
   name = "vuln-ec2-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Principal = {
-        Service = "ec2.amazonaws.com"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
       }
-      Action = "sts:AssumeRole"
-    }]
+    ]
   })
 }
 
 resource "aws_iam_policy" "vuln_policy" {
   name        = "VulnEC2Policy"
   description = "Overprivileged policy for EC2 instance"
-  policy      = jsonencode({
+  policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow"
-        Action   = [
+        Effect = "Allow"
+        Action = [
           "s3:GetObject",
           "s3:ListBucket"
         ]
         Resource = [
-          "${aws_s3_bucket.pii_bucket.arn}",
+          aws_s3_bucket.pii_bucket.arn,
           "${aws_s3_bucket.pii_bucket.arn}/*"
         ]
       },
       {
-        Effect   = "Allow"
-        Action   = [
+        Effect = "Allow"
+        Action = [
           "ec2:Describe*",
           "secretsmanager:ListSecrets",
           "iam:ListRoles"
@@ -49,31 +70,6 @@ resource "aws_iam_policy" "vuln_policy" {
 resource "aws_iam_role_policy_attachment" "attach" {
   role       = aws_iam_role.vuln_role.name
   policy_arn = aws_iam_policy.vuln_policy.arn
-}
-
-resource "aws_instance" "vuln_box" {
-  ami                         = "ami-0fc5d935ebf8bc3bc" # Ubuntu 22.04 LTS us-east-1
-  instance_type               = "t2.micro"
-  associate_public_ip_address = true
-  subnet_id                   = aws_subnet.public_subnet.id
-  vpc_security_group_ids      = [aws_security_group.vuln_sg.id]
-  iam_instance_profile        = aws_iam_instance_profile.vuln_profile.name
-  metadata_options {
-    http_endpoint = "enabled"
-    http_tokens   = "optional" # IMDSv1 only
-  }
-
-  user_data = <<-EOF
-              #!/bin/bash
-              apt-get update -y
-              apt-get install -y python2 openssl nginx curl awscli
-              curl -o /tmp/ssn_data.csv https://s3.amazonaws.com/${aws_s3_bucket.pii_bucket.bucket}/ssn_data.csv
-              aws s3 cp s3://${aws_s3_bucket.pii_bucket.bucket}/ssn_data.csv /tmp/
-              EOF
-
-  tags = {
-    Name = "vuln-ubuntu"
-  }
 }
 
 resource "aws_iam_instance_profile" "vuln_profile" {
@@ -136,23 +132,30 @@ resource "aws_security_group" "vuln_sg" {
   }
 }
 
-resource "aws_s3_bucket" "pii_bucket" {
-  bucket = "prisma-pii-demo-${random_id.suffix.hex}"
-  force_destroy = true
-}
+resource "aws_instance" "vuln_box" {
+  ami                         = "ami-0fc5d935ebf8bc3bc"
+  instance_type               = "t2.micro"
+  associate_public_ip_address = true
+  subnet_id                   = aws_subnet.public_subnet.id
+  vpc_security_group_ids      = [aws_security_group.vuln_sg.id]
+  iam_instance_profile        = aws_iam_instance_profile.vuln_profile.name
 
-resource "aws_s3_bucket_object" "pii_file" {
-  bucket = aws_s3_bucket.pii_bucket.id
-  key    = "ssn_data.csv"
-  content = <<-CSV
-    name,ssn
-    Alice,123-45-6789
-    Bob,987-65-4321
-  CSV
-}
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "optional"
+  }
 
-resource "random_id" "suffix" {
-  byte_length = 4
+  user_data = <<EOF
+#!/bin/bash
+apt-get update -y
+apt-get install -y python2 openssl nginx curl awscli
+curl -o /tmp/ssn_data.csv https://s3.amazonaws.com/${aws_s3_bucket.pii_bucket.bucket}/ssn_data.csv
+aws s3 cp s3://${aws_s3_bucket.pii_bucket.bucket}/ssn_data.csv /tmp/
+EOF
+
+  tags = {
+    Name = "vuln-ubuntu"
+  }
 }
 
 output "instance_public_ip" {
