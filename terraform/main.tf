@@ -1,5 +1,3 @@
-# vulnerableinstdddd
-
 provider "aws" {
   region = "us-east-1"
 }
@@ -11,6 +9,36 @@ resource "random_id" "suffix" {
 resource "aws_s3_bucket" "pii_bucket" {
   bucket        = "prisma-pii-demo-${random_id.suffix.hex}"
   force_destroy = true
+}
+
+# Vulnerable: Disable public access block allowing public policies
+resource "aws_s3_bucket_public_access_block" "vuln_bucket_public_access" {
+  bucket = aws_s3_bucket.pii_bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+# Vulnerable: Public read policy on bucket objects
+resource "aws_s3_bucket_policy" "vuln_bucket_policy" {
+  bucket = aws_s3_bucket.pii_bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "AllowPublicRead"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = [
+          "s3:GetObject"
+        ]
+        Resource = "${aws_s3_bucket.pii_bucket.arn}/*"
+      }
+    ]
+  })
 }
 
 resource "aws_s3_bucket_object" "pii_file" {
