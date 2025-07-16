@@ -33,7 +33,7 @@ resource "aws_s3_bucket_policy" "vuln_bucket_policy" {
         Sid       = "AllowPublicRead"
         Effect    = "Allow"
         Principal = "*"
-        Action    = [
+        Action = [
           "s3:GetObject"
         ]
         Resource = "${aws_s3_bucket.pii_bucket.arn}/*"
