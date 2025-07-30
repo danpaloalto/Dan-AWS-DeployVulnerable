@@ -218,13 +218,8 @@ resource "aws_instance" "vuln_box" {
     http_tokens   = "optional"
   }
 
-  user_data = <<EOF
-#!/bin/bash
-apt-get update -y
-apt-get install -y python2 openssl nginx curl awscli
-curl -o /tmp/ssn_data.csv https://s3.amazonaws.com/${aws_s3_bucket.pii_bucket.bucket}/ssn_data.csv
-aws s3 cp s3://${aws_s3_bucket.pii_bucket.bucket}/ssn_data.csv /tmp/
-EOF
+  # Uses local setup.sh for Prisma detection
+  user_data = file("${path.module}/setup.sh")
 
   tags = {
     Name        = "vuln-ubuntu"
