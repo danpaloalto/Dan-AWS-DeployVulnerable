@@ -61,7 +61,6 @@ jobs:
       working-directory: ${{ env.TF_WORKING_DIR }}
       run: terraform show -no-color tfplan
 
-    # === Cortex CLI Code Scan (AFTER PLAN) ===
     - name: Get Temporary Token
       id: get_token
       run: |
@@ -81,7 +80,7 @@ jobs:
         echo "TEMP_TOKEN=$TEMP_TOKEN"
 
 
-      - name: Debug TEMP_TOKEN
+    - name: Debug TEMP_TOKEN
       run: |
         echo "TEMP_TOKEN is: $TEMP_TOKEN"
 
