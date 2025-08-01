@@ -80,8 +80,11 @@ jobs:
         echo "TEMP_TOKEN=$TEMP_TOKEN" >> $GITHUB_ENV
         echo "TEMP_TOKEN=$TEMP_TOKEN"
 
-    - name: Debug TEMP_TOKEN
-      run: echo "TEMP_TOKEN is: $TEMP_TOKEN"
+
+      - name: Debug TEMP_TOKEN
+      run: |
+        echo "TEMP_TOKEN is: $TEMP_TOKEN"
+
 
     - name: Pull Cortex CLI Docker Image
       run: |
