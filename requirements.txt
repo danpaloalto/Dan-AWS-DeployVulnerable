@@ -1,0 +1,7 @@
+# Deliberately vulnerable Python packages for SCA testing
+flask==0.12    # CVE-2018-1000656
+django==1.11.1 # CVE-2019-12308
+pyyaml==3.13   # CVE-2017-18342
+requests==2.19.1  # CVE-2018-18074
+urllib3==1.23     # CVE-2019-11324
+jinja2==2.10      # CVE-2019-10906
