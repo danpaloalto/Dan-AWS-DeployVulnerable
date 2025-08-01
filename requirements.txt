@@ -1,0 +1,9 @@
+# requirements.txt (intentionally vulnerable)
+Flask==0.12        # CVE-2018-1000656
+Django==1.11       # Multiple CVEs incl. CVE-2019-19844
+requests==2.18.4   # Known to have vulnerabilities in dependency chains
+PyYAML==3.10       # CVE-2017-18342
+Jinja2==2.7.1      # CVE-2016-10745
+urllib3==1.21.1    # CVE-2019-11324
+MarkupSafe==1.0    # CVE-2016-10724
+cryptography==1.2.3 # CVE-2018-10903
