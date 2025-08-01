@@ -63,6 +63,7 @@ jobs:
 
     # === Cortex CLI Code Scan (AFTER PLAN) ===
     - name: Get Temporary Token
+      id: get_token
       run: |
         TOKEN_RESPONSE=$(curl --location "${CORTEX_API_URL}/public_api/v1/unified-cli/image/token" \
           --header "Authorization: ${CORTEX_API_KEY}" \
@@ -70,16 +71,26 @@ jobs:
           --header 'Content-Type: application/json' \
           --data '{}')
         TEMP_TOKEN=$(echo $TOKEN_RESPONSE | jq -r '.token')
+
+        if [ -z "$TEMP_TOKEN" ] || [ "$TEMP_TOKEN" = "null" ]; then
+          echo "ERROR: Failed to get temporary token from Cortex API"
+          exit 1
+        fi
+
         echo "TEMP_TOKEN=$TEMP_TOKEN" >> $GITHUB_ENV
+        echo "TEMP_TOKEN=$TEMP_TOKEN"
+
+    - name: Debug TEMP_TOKEN
+      run: echo "TEMP_TOKEN is: $TEMP_TOKEN"
 
     - name: Pull Cortex CLI Docker Image
       run: |
-        docker pull distributions.traps.paloaltonetworks.com/cli-docker/${{ env.TEMP_TOKEN }}/method:amd64-${{ env.CORTEX_CLI_VERSION }}
-        docker tag distributions.traps.paloaltonetworks.com/cli-docker/${{ env.TEMP_TOKEN }}/method:amd64-${{ env.CORTEX_CLI_VERSION }} cortexcli:${{ env.CORTEX_CLI_VERSION }}
+        docker pull distributions.traps.paloaltonetworks.com/cli-docker/$TEMP_TOKEN/method:amd64-${CORTEX_CLI_VERSION}
+        docker tag distributions.traps.paloaltonetworks.com/cli-docker/$TEMP_TOKEN/method:amd64-${CORTEX_CLI_VERSION} cortexcli:${CORTEX_CLI_VERSION}
 
     - name: Run Cortex Code Scan
       run: |
-        docker run --rm -v ${{ github.workspace }}:/home/code cortexcli:${{ env.CORTEX_CLI_VERSION }} \
+        docker run --rm -v ${{ github.workspace }}:/home/code cortexcli:${CORTEX_CLI_VERSION} \
           --api-base-url ${CORTEX_API_URL} \
           --api-key ${CORTEX_API_KEY} \
           --api-key-id ${CORTEX_API_KEY_ID} \
