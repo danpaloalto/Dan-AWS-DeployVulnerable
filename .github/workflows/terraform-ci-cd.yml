@@ -6,12 +6,6 @@ on:
   pull_request:
     branches: [main]
 
-env:
-  CORTEX_API_KEY: ${{ secrets.CORTEX_API_KEY }}
-  CORTEX_API_KEY_ID: ${{ secrets.CORTEX_API_KEY_ID }}
-  CORTEX_API_URL: https://api-e-ccr.xdr.us.paloaltonetworks.com
-  CORTEX_CLI_VERSION: 0.13.0
-
 jobs:
   terraform:
     name: Terraform Plan
@@ -60,48 +54,6 @@ jobs:
     - name: Show Plan Summary
       working-directory: ${{ env.TF_WORKING_DIR }}
       run: terraform show -no-color tfplan
-
-    - name: Get Temporary Token
-      id: get_token
-      run: |
-        TOKEN_RESPONSE=$(curl --location "${CORTEX_API_URL}/public_api/v1/unified-cli/image/token" \
-          --header "Authorization: ${CORTEX_API_KEY}" \
-          --header "x-xdr-auth-id: ${CORTEX_API_KEY_ID}" \
-          --header 'Content-Type: application/json' \
-          --data '{}')
-        TEMP_TOKEN=$(echo $TOKEN_RESPONSE | jq -r '.token')
-
-        if [ -z "$TEMP_TOKEN" ] || [ "$TEMP_TOKEN" = "null" ]; then
-          echo "ERROR: Failed to get temporary token from Cortex API"
-          exit 1
-        fi
-
-        echo "TEMP_TOKEN=$TEMP_TOKEN" >> $GITHUB_ENV
-        echo "TEMP_TOKEN=$TEMP_TOKEN"
-
-
-    - name: Debug TEMP_TOKEN
-      run: |
-        echo "TEMP_TOKEN is: $TEMP_TOKEN"
-
-
-    - name: Pull Cortex CLI Docker Image
-      run: |
-        docker pull distributions.traps.paloaltonetworks.com/cli-docker/$TEMP_TOKEN/method:amd64-${CORTEX_CLI_VERSION}
-        docker tag distributions.traps.paloaltonetworks.com/cli-docker/$TEMP_TOKEN/method:amd64-${CORTEX_CLI_VERSION} cortexcli:${CORTEX_CLI_VERSION}
-
-    - name: Run Cortex Code Scan
-      run: |
-        docker run --rm -v ${{ github.workspace }}:/home/code cortexcli:${CORTEX_CLI_VERSION} \
-          --api-base-url ${CORTEX_API_URL} \
-          --api-key ${CORTEX_API_KEY} \
-          --api-key-id ${CORTEX_API_KEY_ID} \
-          code scan \
-          --directory /home/code \
-          --repo-id ${{ github.repository }} \
-          --branch ${{ github.ref_name }} \
-          --source 'GITHUB_ACTIONS' \
-          --create-repo-if-missing
 
   apply:
     name: Terraform Apply
