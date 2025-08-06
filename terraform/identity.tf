@@ -12,7 +12,7 @@ resource "aws_iam_access_key" "insecure_user_key" {
 resource "aws_iam_policy" "insecure_policy" {
   name        = "insecure-policy"
   description = "Overly permissive policy to trigger CNAPP findings"
-  policy      = jsonencode({
+  policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
@@ -25,12 +25,12 @@ resource "aws_iam_policy" "insecure_policy" {
 }
 
 resource "aws_iam_role" "insecure_role" {
-  name               = "insecure-role"
+  name = "insecure-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Effect    = "Allow"
+        Effect = "Allow"
         Principal = {
           Service = "ec2.amazonaws.com"
         }
