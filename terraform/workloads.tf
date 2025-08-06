@@ -19,6 +19,9 @@ resource "aws_security_group" "insecure_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  tags = {
+    yor_trace = "92176dee-087e-4e1c-b474-95828b66c7d8"
+  }
 }
 
 # EC2 instance with vulnerable packages installed via user_data
@@ -52,13 +55,17 @@ resource "aws_instance" "insecure_ec2" {
               EOF
 
   tags = {
-    Name = "insecure-ec2"
+    Name      = "insecure-ec2"
+    yor_trace = "4aa4902b-db75-43a3-ba14-e1778ed7b398"
   }
 }
 
 # ECS Cluster
 resource "aws_ecs_cluster" "insecure_cluster" {
   name = "insecure-ecs-cluster"
+  tags = {
+    yor_trace = "2cd6f09f-9bb2-4ad8-b753-2e17b92be248"
+  }
 }
 
 # ECS Task Definition using a basic sample image
@@ -81,6 +88,9 @@ resource "aws_ecs_task_definition" "insecure_task" {
       }]
     }
   ])
+  tags = {
+    yor_trace = "01e8b2b8-9d79-4036-8e31-fe286dcb390e"
+  }
 }
 
 # ECS Service with open network config
@@ -95,5 +105,8 @@ resource "aws_ecs_service" "insecure_service" {
     subnets          = [var.subnet_id]
     security_groups  = [aws_security_group.insecure_sg.id]
     assign_public_ip = true
+  }
+  tags = {
+    yor_trace = "80b41af5-fcad-4aed-adb0-2d23e9022052"
   }
 }
