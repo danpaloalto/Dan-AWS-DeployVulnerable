@@ -1,4 +1,4 @@
-# insecure-compute.tf
+# insecure-compute.tff
 
 # Security Group: open inbound and outbound traffic (insecure)
 resource "aws_security_group" "insecure_sg" {
