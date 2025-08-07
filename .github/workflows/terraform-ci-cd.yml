@@ -43,10 +43,11 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform validate
 
-      - name: Remove stale insecure_sg from state (fix wrong VPC ID)
+      - name: Fix VPC state and import actual VPC resource
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
-          terraform state rm aws_security_group.insecure_sg || true
+          terraform state rm aws_vpc.insecure_vpc || true
+          terraform import aws_vpc.insecure_vpc vpc-060788fed16db44f3
 
       - name: Terraform Plan
         working-directory: ${{ env.TF_WORKING_DIR }}
