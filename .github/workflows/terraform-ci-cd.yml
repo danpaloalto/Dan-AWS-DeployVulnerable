@@ -35,13 +35,18 @@ jobs:
             -backend-config="dynamodb_table=terraform-lock-dan-vuln" \
             -backend-config="region=${{ env.AWS_REGION }}"
 
-      - name: Import existing resources into Terraform state (ignore errors if already imported)
+      - name: Import existing VPC
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: |
-          terraform import aws_iam_user.insecure_user insecure-user || true
-          terraform import aws_iam_policy.insecure_policy arn:aws:iam::533267171879:policy/insecure-policy || true
-          terraform import aws_vpc.insecure_vpc vpc-060788fed16db44f3 || true
-          terraform import aws_security_group.insecure_sg sg-0eace4e9d4f574026 || true
+        run: terraform import aws_vpc.insecure_vpc vpc-060788fed16db44f3 || true
+
+      - name: Import existing Security Group
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform import aws_security_group.insecure_sg sg-0eace4e9d4f574026 || true
+
+      # Add other imports here as needed, e.g.:
+      # - aws_iam_role.insecure_role
+      # - aws_iam_instance_profile.insecure_instance_profile
+      # etc.
 
       - name: Terraform Format Check
         working-directory: ${{ env.TF_WORKING_DIR }}
