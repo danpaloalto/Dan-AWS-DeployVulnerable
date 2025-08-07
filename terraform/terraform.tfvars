@@ -21,3 +21,9 @@ variable "ami_id" {
   type        = string
   default     = "ami-084a7d336e816906b"
 }
+
+variable "insecure_sg_id" {
+  description = "The ID of the insecure security group to associate with resources."
+  type        = string
+  default     = "sg-0f6252efa77a0004a" 
+}
