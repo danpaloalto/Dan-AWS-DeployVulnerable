@@ -43,6 +43,10 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform validate
 
+      - name: Terraform Refresh
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform refresh
+
       - name: Terraform Plan
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform plan -out=tfplan
@@ -88,6 +92,10 @@ jobs:
             -backend-config="bucket=terraform-state-dan-vuln" \
             -backend-config="dynamodb_table=terraform-lock-dan-vuln" \
             -backend-config="region=${{ env.AWS_REGION }}"
+
+      - name: Terraform Refresh
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform refresh
 
       - name: Terraform Apply
         working-directory: ${{ env.TF_WORKING_DIR }}
