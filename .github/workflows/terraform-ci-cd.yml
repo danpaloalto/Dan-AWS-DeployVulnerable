@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  TF_WORKING_DIR: ./terraform1
+  TF_WORKING_DIR: ./terraform
   AWS_REGION: us-east-1
 
 jobs:
