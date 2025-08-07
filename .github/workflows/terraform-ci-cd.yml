@@ -35,23 +35,13 @@ jobs:
             -backend-config="dynamodb_table=terraform-lock-dan-vuln" \
             -backend-config="region=${{ env.AWS_REGION }}"
 
-      - name: Import existing AWS resources into Terraform state
+      - name: Import existing resources into Terraform state (ignore errors if already imported)
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
-          # Ignore errors if already imported
-          terraform import aws_iam_role.insecure_role insecure-role || true
-          terraform import aws_iam_role_policy_attachment.insecure_role_attach insecure-role/arn:aws:iam::533267171879:policy/insecure-policy || true
-          terraform import aws_iam_instance_profile.insecure_instance_profile insecure-instance-profile || true
+          terraform import aws_iam_user.insecure_user insecure-user || true
+          terraform import aws_iam_policy.insecure_policy arn:aws:iam::533267171879:policy/insecure-policy || true
           terraform import aws_vpc.insecure_vpc vpc-060788fed16db44f3 || true
-          terraform import aws_internet_gateway.igw igw-026f3463bfc405867 || true
-          terraform import aws_subnet.public_a subnet-0cf91d99424e8500d || true
-          terraform import aws_subnet.public_b subnet-0f2ceffe005c087f5 || true
           terraform import aws_security_group.insecure_sg sg-0eace4e9d4f574026 || true
-          terraform import aws_security_group.open_sg sg-09343fba8f682ff19 || true
-          terraform import aws_route_table.public_rt rtb-09a2db16e587c5094 || true
-          terraform import aws_route_table_association.public_a_assoc rtbassoc-0d62c83a2bf129f28 || true
-          terraform import aws_route_table_association.public_b_assoc rtbassoc-0acc965da1dd54f7b || true
-          terraform import aws_network_acl.open_acl acl-0bb20cea9e345760f || true
 
       - name: Terraform Format Check
         working-directory: ${{ env.TF_WORKING_DIR }}
