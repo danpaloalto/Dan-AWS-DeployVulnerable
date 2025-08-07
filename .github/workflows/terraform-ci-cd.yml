@@ -89,6 +89,10 @@ jobs:
             -backend-config="dynamodb_table=terraform-lock-dan-vuln" \
             -backend-config="region=${{ env.AWS_REGION }}"
 
+      - name: Remove bad state for VPC-dependent resource (TEMP FIX)
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform state rm aws_security_group.open_sg || true
+
       - name: Terraform Apply
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform apply -auto-approve tfplan
