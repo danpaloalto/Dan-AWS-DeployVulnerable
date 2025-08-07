@@ -35,19 +35,13 @@ jobs:
             -backend-config="dynamodb_table=terraform-lock-dan-vuln" \
             -backend-config="region=${{ env.AWS_REGION }}"
 
-      # Remove and import the VPC into state
-      - name: Fix VPC state import
+      - name: Remove stale insecure_sg from state (ignore errors)
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: |
-          terraform state rm aws_vpc.insecure_vpc || true
-          terraform import aws_vpc.insecure_vpc vpc-060788fed16db44f3
+        run: terraform state rm aws_security_group.insecure_sg || true
 
-      # Remove and import the Security Group into state
-      - name: Fix Security Group state import
+      - name: Import existing insecure_sg to state
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: |
-          terraform state rm aws_security_group.insecure_sg || true
-          terraform import aws_security_group.insecure_sg sg-0eace4e9d4f574026
+        run: terraform import aws_security_group.insecure_sg sg-0465fd67b37a91e57
 
       - name: Terraform Format Check
         working-directory: ${{ env.TF_WORKING_DIR }}
@@ -102,6 +96,14 @@ jobs:
             -backend-config="bucket=terraform-state-dan-vuln" \
             -backend-config="dynamodb_table=terraform-lock-dan-vuln" \
             -backend-config="region=${{ env.AWS_REGION }}"
+
+      - name: Remove stale insecure_sg from state (ignore errors)
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform state rm aws_security_group.insecure_sg || true
+
+      - name: Import existing insecure_sg to state
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform import aws_security_group.insecure_sg sg-0465fd67b37a91e57
 
       - name: Terraform Apply
         working-directory: ${{ env.TF_WORKING_DIR }}
