@@ -1,4 +1,4 @@
-vpc_id = "vpc-0b24f8f674f4327b3" 
+vpc_id = "vpc-0b24f8f674f4327b3"
 
 
 subnet_id = "subnet-03ebace431a277417"
