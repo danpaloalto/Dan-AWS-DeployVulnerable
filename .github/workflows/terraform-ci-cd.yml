@@ -35,14 +35,6 @@ jobs:
             -backend-config="dynamodb_table=terraform-lock-dan-vuln" \
             -backend-config="region=${{ env.AWS_REGION }}"
 
-      - name: Remove stale insecure_sg from state (ignore errors)
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform state rm aws_security_group.insecure_sg || true
-
-      - name: Import existing insecure_sg to state
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform import aws_security_group.insecure_sg sg-0465fd67b37a91e57
-
       - name: Terraform Format Check
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform fmt -check
