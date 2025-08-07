@@ -47,10 +47,6 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform refresh
 
-      - name: Terraform Import Security Group (ignore errors)
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform import aws_security_group.insecure_sg sg-00eccf412fd1d73ae || echo "Import skipped or already done"
-
       - name: Terraform Plan
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform plan -out=tfplan
@@ -100,10 +96,6 @@ jobs:
       - name: Terraform Refresh
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform refresh
-
-      - name: Terraform Import Security Group (ignore errors)
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform import aws_security_group.insecure_sg sg-00eccf412fd1d73ae || echo "Import skipped or already done"
 
       - name: Terraform Apply
         working-directory: ${{ env.TF_WORKING_DIR }}
