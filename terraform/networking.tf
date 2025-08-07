@@ -74,7 +74,7 @@ resource "aws_security_group" "open_sg" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # CNAPP will flag this
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -89,7 +89,6 @@ resource "aws_security_group" "open_sg" {
   }
 }
 
-# Optional NACLs — wide open as well
 resource "aws_network_acl" "open_acl" {
   vpc_id = aws_vpc.insecure_vpc.id
   subnet_ids = [
