@@ -47,6 +47,10 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform refresh
 
+      - name: Terraform Import Security Group (ignore errors)
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform import aws_security_group.open_sg sg-0f6252efa77a0004a || echo "Import skipped or already done"
+
       - name: Terraform Plan
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform plan -out=tfplan
