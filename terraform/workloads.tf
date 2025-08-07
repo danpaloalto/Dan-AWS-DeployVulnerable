@@ -1,11 +1,24 @@
 # insecure-compute.tf
 
-# Note: aws_security_group.insecure_sg resource removed here.
-# Instead, supply the existing SG ID via variable security_group_id
+# Security Group: open inbound and outbound traffic (insecure)
+resource "aws_security_group" "insecure_sg" {
+  name        = "insecure-sg"
+  description = "Allow all inbound and outbound traffic (insecure)"
+  vpc_id      = var.vpc_id
 
-variable "security_group_id" {
-  description = "ID of the existing security group to associate"
-  type        = string
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 # EC2 instance with vulnerable packages installed via user_data
@@ -13,7 +26,7 @@ resource "aws_instance" "insecure_ec2" {
   ami                         = var.ami_id
   instance_type               = "t3.micro"
   subnet_id                   = var.subnet_id
-  security_groups             = [var.security_group_id]
+  vpc_security_group_ids      = [aws_security_group.insecure_sg.id]
   iam_instance_profile        = var.iam_instance_profile_name
   associate_public_ip_address = true
 
@@ -80,7 +93,7 @@ resource "aws_ecs_service" "insecure_service" {
 
   network_configuration {
     subnets          = [var.subnet_id]
-    security_groups  = [var.security_group_id]
+    security_groups  = [aws_security_group.insecure_sg.id]
     assign_public_ip = true
   }
 }
