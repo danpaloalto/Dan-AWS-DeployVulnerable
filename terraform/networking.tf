@@ -65,7 +65,7 @@ resource "aws_route_table_association" "public_b_assoc" {
   route_table_id = aws_route_table.public_rt.id
 }
 
-resource "aws_security_group" "open_sg" {
+resource "aws_security_group" "insecure_sg" {
   name        = "insecure-sg"
   description = "Wide open security group"
   vpc_id      = aws_vpc.insecure_vpc.id
