@@ -1,7 +1,7 @@
-vpc_id = "vpc-0b24f8f674f4327b3"
+vpc_id = "vpc-060788fed16db44f3"
 
 
-subnet_id = "subnet-03ebace431a277417"
+subnet_id = "subnet-0cf91d99424e8500d"
 
 iam_instance_profile_name = "insecure-instance-profile"
 
