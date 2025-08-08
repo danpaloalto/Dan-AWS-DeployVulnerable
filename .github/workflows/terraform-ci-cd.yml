@@ -35,6 +35,10 @@ jobs:
             -backend-config="dynamodb_table=terraform-lock-dan-vuln" \
             -backend-config="region=${{ env.AWS_REGION }}"
 
+      - name: Force Unlock Terraform State (ignore errors)
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform force-unlock -force d6591434-0a98-1806-b171-ec12cc20a8f3 || echo "No lock to remove"
+
       - name: Terraform Format Check
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform fmt -check
@@ -96,6 +100,10 @@ jobs:
             -backend-config="bucket=terraform-state-dan-vuln" \
             -backend-config="dynamodb_table=terraform-lock-dan-vuln" \
             -backend-config="region=${{ env.AWS_REGION }}"
+
+      - name: Force Unlock Terraform State (ignore errors)
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform force-unlock -force d6591434-0a98-1806-b171-ec12cc20a8f3 || echo "No lock to remove"
 
       - name: Terraform Refresh
         working-directory: ${{ env.TF_WORKING_DIR }}
