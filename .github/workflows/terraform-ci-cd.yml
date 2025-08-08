@@ -51,9 +51,14 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform refresh
 
-      - name: Terraform Import Security Group (ignore errors)
+      - name: Import Security Group if exists
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform import aws_security_group.open_sg sg-0f6252efa77a0004a || echo "Import skipped or already done"
+        run: |
+          if aws ec2 describe-security-groups --group-ids sg-0f6252efa77a0004a >/dev/null 2>&1; then
+            terraform import aws_security_group.insecure_open_sg sg-0f6252efa77a0004a || true
+          else
+            echo "Security group not found, skipping import"
+          fi
 
       - name: Terraform Plan
         working-directory: ${{ env.TF_WORKING_DIR }}
