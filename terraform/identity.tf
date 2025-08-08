@@ -1,4 +1,4 @@
-# insecure-iam.tf
+## insecure-iam.tf
 
 resource "aws_iam_user" "insecure_user" {
   name = "insecure-user"
