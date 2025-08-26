@@ -45,12 +45,16 @@ resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
-  tags = { Name = "${var.project_prefix}-vpc" }
+  tags = { Name = "${var.project_prefix}-vpc"
+    yor_trace = "b1ab1823-da32-468c-99db-b00c1a564890"
+  }
 }
 
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
-  tags = { Name = "${var.project_prefix}-igw" }
+  tags = { Name = "${var.project_prefix}-igw"
+    yor_trace = "9848a678-15bf-47f8-b0fd-345622234719"
+  }
 }
 
 # Two public subnets (so RDS subnet group is valid)
@@ -59,7 +63,9 @@ resource "aws_subnet" "public_a" {
   cidr_block              = "10.0.1.0/24"
   availability_zone       = "${var.aws_region}a"
   map_public_ip_on_launch = true
-  tags = { Name = "${var.project_prefix}-public-a" }
+  tags = { Name = "${var.project_prefix}-public-a"
+    yor_trace = "86fcc036-03bf-47c8-ae4c-5354311fb8e5"
+  }
 }
 
 resource "aws_subnet" "public_b" {
@@ -67,7 +73,9 @@ resource "aws_subnet" "public_b" {
   cidr_block              = "10.0.2.0/24"
   availability_zone       = "${var.aws_region}b"
   map_public_ip_on_launch = true
-  tags = { Name = "${var.project_prefix}-public-b" }
+  tags = { Name = "${var.project_prefix}-public-b"
+    yor_trace = "5fd01212-cedb-4a9f-a062-89f67bb1ea59"
+  }
 }
 
 resource "aws_route_table" "public" {
@@ -76,7 +84,9 @@ resource "aws_route_table" "public" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
-  tags = { Name = "${var.project_prefix}-public-rt" }
+  tags = { Name = "${var.project_prefix}-public-rt"
+    yor_trace = "2b385c18-f689-4eea-849e-fc292b9dd588"
+  }
 }
 
 resource "aws_route_table_association" "a" {
@@ -131,7 +141,9 @@ resource "aws_security_group" "insecure_all" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = { Name = "${var.project_prefix}-insecure-sg" }
+  tags = { Name = "${var.project_prefix}-insecure-sg"
+    yor_trace = "7371d3d9-1814-494e-a2bc-79ceda6a1d42"
+  }
 }
 
 ###############################################
@@ -140,6 +152,9 @@ resource "aws_security_group" "insecure_all" {
 resource "aws_iam_role" "ec2_admin_role" {
   name               = "${var.project_prefix}-ec2-admin-role"
   assume_role_policy = data.aws_iam_policy_document.ec2_trust.json
+  tags = {
+    yor_trace = "06ff1955-484a-44d6-80d4-46c42102b1a7"
+  }
 }
 
 data "aws_iam_policy_document" "ec2_trust" {
@@ -161,12 +176,17 @@ resource "aws_iam_role_policy_attachment" "admin_attach" {
 resource "aws_iam_instance_profile" "ec2_profile" {
   name = "${var.project_prefix}-ec2-profile"
   role = aws_iam_role.ec2_admin_role.name
+  tags = {
+    yor_trace = "490e2204-14d7-4568-8e84-b87cc5e7c8cb"
+  }
 }
 
 # Break-glass user without MFA and with admin wildcard policy (bad)
 resource "aws_iam_user" "breakglass" {
   name = "${var.project_prefix}-breakglass"
-  tags = { Purpose = "INTENTIONALLY-INSECURE" }
+  tags = { Purpose = "INTENTIONALLY-INSECURE"
+    yor_trace = "f758a1c3-a5a8-4d21-bb32-bc5c79c59964"
+  }
 }
 
 resource "aws_iam_user_policy" "breakglass_admin" {
@@ -210,7 +230,7 @@ resource "aws_instance" "insecure" {
   # IMDSv1 enabled (bad):
   metadata_options {
     http_endpoint               = "enabled"
-    http_tokens                 = "optional"   # allows IMDSv1
+    http_tokens                 = "optional" # allows IMDSv1
     http_put_response_hop_limit = 1
   }
 
@@ -222,8 +242,9 @@ resource "aws_instance" "insecure" {
               EOT
 
   tags = {
-    Name   = "${var.project_prefix}-ec2-public"
-    Intent = "INTENTIONALLY-INSECURE"
+    Name      = "${var.project_prefix}-ec2-public"
+    Intent    = "INTENTIONALLY-INSECURE"
+    yor_trace = "1ee11670-a882-439b-95f3-f8d0f09a1095"
   }
 }
 
@@ -241,7 +262,9 @@ locals {
 resource "aws_s3_bucket" "insecure" {
   bucket        = local.bucket_name
   force_destroy = true
-  tags = { Name = local.bucket_name, Intent = "INTENTIONALLY-INSECURE" }
+  tags = { Name = local.bucket_name, Intent = "INTENTIONALLY-INSECURE"
+    yor_trace = "69e69ae4-858d-400c-9982-e1108cc4b2cb"
+  }
 }
 
 # Disable recommended public access blocks (bad)
@@ -300,6 +323,9 @@ resource "aws_s3_object" "pii" {
 resource "aws_db_subnet_group" "public" {
   name       = "${var.project_prefix}-db-subnets"
   subnet_ids = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+  tags = {
+    yor_trace = "f91beb6c-18de-4de9-bdf1-11dd15f64dc4"
+  }
 }
 
 resource "aws_security_group" "rds_open" {
@@ -317,23 +343,29 @@ resource "aws_security_group" "rds_open" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  tags = {
+    yor_trace = "f571f6d3-6702-4abd-972b-828b329f8ded"
+  }
 }
 
 resource "aws_db_instance" "insecure" {
-  identifier              = "${var.project_prefix}-mysql"
-  engine                  = "mysql"
-  engine_version          = "8.0"
-  instance_class          = "db.t3.micro"
-  username                = "admin"
-  password                = "P@ssw0rd123"           # stored in state (bad)
-  allocated_storage       = 20
-  db_subnet_group_name    = aws_db_subnet_group.public.name
-  vpc_security_group_ids  = [aws_security_group.rds_open.id]
-  publicly_accessible     = true                    # bad
-  storage_encrypted       = false                   # bad
-  skip_final_snapshot     = true
-  deletion_protection     = false
-  apply_immediately       = true
+  identifier             = "${var.project_prefix}-mysql"
+  engine                 = "mysql"
+  engine_version         = "8.0"
+  instance_class         = "db.t3.micro"
+  username               = "admin"
+  password               = "P@ssw0rd123" # stored in state (bad)
+  allocated_storage      = 20
+  db_subnet_group_name   = aws_db_subnet_group.public.name
+  vpc_security_group_ids = [aws_security_group.rds_open.id]
+  publicly_accessible    = true  # bad
+  storage_encrypted      = false # bad
+  skip_final_snapshot    = true
+  deletion_protection    = false
+  apply_immediately      = true
+  tags = {
+    yor_trace = "b45f6634-ae02-41d5-830e-2a575412b0df"
+  }
 }
 
 ###############################################
@@ -342,6 +374,9 @@ resource "aws_db_instance" "insecure" {
 resource "aws_cloudwatch_log_group" "default" {
   name = "/aws/${var.project_prefix}/app"
   # no retention set (never expires)
+  tags = {
+    yor_trace = "ccf08f1b-1198-4e42-8b21-aad604f3f24b"
+  }
 }
 
 ###############################################
@@ -350,6 +385,9 @@ resource "aws_cloudwatch_log_group" "default" {
 resource "aws_kms_key" "noration" {
   description         = "${var.project_prefix} key without rotation (bad)"
   enable_key_rotation = false
+  tags = {
+    yor_trace = "ab3a7e4a-3d7a-4f94-8d7b-531940cdb583"
+  }
 }
 
 ###############################################

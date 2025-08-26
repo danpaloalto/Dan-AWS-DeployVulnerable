@@ -53,8 +53,9 @@ resource "aws_s3_bucket" "public" {
   bucket        = local.bucket_name
   force_destroy = true
   tags = {
-    Name   = local.bucket_name
-    Intent = "INTENTIONALLY-INSECURE"
+    Name      = local.bucket_name
+    Intent    = "INTENTIONALLY-INSECURE"
+    yor_trace = "1c0ed71b-7eef-421c-b405-7c8498471a2d"
   }
 }
 
@@ -129,12 +130,16 @@ resource "aws_vpc" "main" {
   cidr_block           = "10.20.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
-  tags = { Name = "${var.project_prefix}-vpc" }
+  tags = { Name = "${var.project_prefix}-vpc"
+    yor_trace = "aa49bba6-9b72-4962-b5cc-cecb33e063a5"
+  }
 }
 
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
-  tags = { Name = "${var.project_prefix}-igw" }
+  tags = { Name = "${var.project_prefix}-igw"
+    yor_trace = "fda5279f-b67e-4f14-b4ba-cede30f62c51"
+  }
 }
 
 resource "aws_subnet" "public" {
@@ -142,7 +147,9 @@ resource "aws_subnet" "public" {
   cidr_block              = "10.20.1.0/24"
   availability_zone       = "${var.aws_region}a"
   map_public_ip_on_launch = true
-  tags = { Name = "${var.project_prefix}-public" }
+  tags = { Name = "${var.project_prefix}-public"
+    yor_trace = "bbf080de-f783-4a01-be10-039ba0af1749"
+  }
 }
 
 resource "aws_route_table" "public" {
@@ -151,7 +158,9 @@ resource "aws_route_table" "public" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
-  tags = { Name = "${var.project_prefix}-rt" }
+  tags = { Name = "${var.project_prefix}-rt"
+    yor_trace = "34f2a8e3-1040-4940-91ce-4bacd50a0d1d"
+  }
 }
 
 resource "aws_route_table_association" "assoc" {
@@ -175,6 +184,9 @@ resource "aws_security_group" "ssh_open" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  tags = {
+    yor_trace = "868dc6dc-297e-4d53-ab50-86d4d4dd1980"
+  }
 }
 
 resource "aws_instance" "no_imdsv2" {
@@ -187,13 +199,14 @@ resource "aws_instance" "no_imdsv2" {
   # IMDSv2 NOT required (bad): allows IMDSv1
   metadata_options {
     http_endpoint               = "enabled"
-    http_tokens                 = "optional"   # <- this disables IMDSv2 enforcement
+    http_tokens                 = "optional" # <- this disables IMDSv2 enforcement
     http_put_response_hop_limit = 1
   }
 
   tags = {
-    Name   = "${var.project_prefix}-ec2-no-imdsv2"
-    Intent = "INTENTIONALLY-INSECURE"
+    Name      = "${var.project_prefix}-ec2-no-imdsv2"
+    Intent    = "INTENTIONALLY-INSECURE"
+    yor_trace = "e735820d-558f-4896-b432-45901281f906"
   }
 }
 
