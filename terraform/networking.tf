@@ -8,7 +8,8 @@ resource "aws_vpc" "insecure_vpc" {
   enable_dns_hostnames = true
 
   tags = {
-    Name = "insecure-vpc"
+    Name      = "insecure-vpc"
+    yor_trace = "b86e6a19-bdcd-463d-a18a-540895758821"
   }
 }
 
@@ -16,7 +17,8 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.insecure_vpc.id
 
   tags = {
-    Name = "insecure-igw"
+    Name      = "insecure-igw"
+    yor_trace = "e624302d-1d74-4551-bd90-3b43884ba0e2"
   }
 }
 
@@ -27,7 +29,8 @@ resource "aws_subnet" "public_a" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "insecure-public-a"
+    Name      = "insecure-public-a"
+    yor_trace = "ec769d04-39b8-4769-b885-915534d7c363"
   }
 }
 
@@ -38,7 +41,8 @@ resource "aws_subnet" "public_b" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "insecure-public-b"
+    Name      = "insecure-public-b"
+    yor_trace = "8c0fc281-8708-4bec-8cde-016c929546f7"
   }
 }
 
@@ -51,7 +55,8 @@ resource "aws_route_table" "public_rt" {
   }
 
   tags = {
-    Name = "insecure-public-rt"
+    Name      = "insecure-public-rt"
+    yor_trace = "057125d3-3b22-4bd7-851a-545d52f9e7a9"
   }
 }
 
@@ -86,7 +91,8 @@ resource "aws_security_group" "insecure_open_sg" {
   }
 
   tags = {
-    Name = "insecure-open-sg"
+    Name      = "insecure-open-sg"
+    yor_trace = "d84809de-6d11-43a2-bf16-a04099cdf65c"
   }
 }
 
@@ -116,6 +122,7 @@ resource "aws_network_acl" "open_acl" {
   }
 
   tags = {
-    Name = "insecure-acl"
+    Name      = "insecure-acl"
+    yor_trace = "2e5118f3-f039-4a12-be4d-24e1aaae0585"
   }
 }
