@@ -3,6 +3,9 @@
 resource "aws_iam_user" "insecure_user" {
   name = "insecure-user"
   # No MFA enforced
+  tags = {
+    yor_trace = "dafed4c1-f19b-4b7c-a95d-161a4dae36f2"
+  }
 }
 
 resource "aws_iam_access_key" "insecure_user_key" {
@@ -22,6 +25,9 @@ resource "aws_iam_policy" "insecure_policy" {
       }
     ]
   })
+  tags = {
+    yor_trace = "8d6ab2fc-b01f-42ff-9f1a-7ddcaba7f08c"
+  }
 }
 
 resource "aws_iam_role" "insecure_role" {
@@ -38,6 +44,9 @@ resource "aws_iam_role" "insecure_role" {
       }
     ]
   })
+  tags = {
+    yor_trace = "b6b25f65-9ced-4df2-bbaf-eddc8e26b620"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "insecure_role_attach" {
@@ -48,4 +57,7 @@ resource "aws_iam_role_policy_attachment" "insecure_role_attach" {
 resource "aws_iam_instance_profile" "insecure_instance_profile" {
   name = "insecure-instance-profile"
   role = aws_iam_role.insecure_role.name
+  tags = {
+    yor_trace = "614af9a8-9a19-4820-996c-4db24ca0f86d"
+  }
 }
